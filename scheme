@@ -1,0 +1,32 @@
+TABLE Users {
+  id,
+  first_name,
+  last_name
+}
+
+TABLE UsersRoles {
+  id,
+  user_id,
+  role_id
+}
+
+TABLE Roles {
+  id,
+  name
+}
+
+Table ActionPermissions {
+  id,
+  action_name,
+  role_id,
+  user_id
+}
+
+Table AccessPermissions {
+  id,
+  path_to_file,
+  write,
+  read,
+  role_id,
+  user_id
+}
