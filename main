@@ -1,0 +1,92 @@
+defmodule Permissions do
+
+  def create_role(name, action_permissions, access_permissions) do
+    existing_role = Role.find_by(name: name)
+
+    if (!existing_role) do
+      Role.create(name: name, action_permissions: action_permissions, access_permissions: access_permissions)
+    else
+      existing_role
+    end
+  end
+
+  def create_action_permission(action_name) do
+    existing_permission = ActionPermission.find_by(action_name: action_name)
+
+    if (!existing_permission) do
+      ActionPermission.create(action_name: action_name)
+    else
+      existing_permission
+    end
+  end
+
+  def create_access_permission(path_to_file, read, write) do
+    existing_permission = AccessPermission.find_by(path_to_file: path_to_file)
+
+    if (!existing_permission) do
+      AccessPermission.create(path_to_file: path_to_file, read: read, write: write)
+    else
+      existing_permission
+    end
+  end
+
+  def set_action_permission_to_user(user_name, action_name) do
+    user = User.find_by(name: name)
+
+    if (!user) do
+      raise UserNotFoundError(user)
+    end
+
+    existing_permission = ActionPermission.find_by(user: user, action_name: action_name)
+
+    if (!existing_permission) do
+      ActionPermission.create(user: user, action_name: action_name)
+    else
+      existing_permission
+    end
+  end
+
+  def set_access_permission_to_user(user_name, path_to_file, read, write) do
+    user = User.find_by(name: name)
+
+    if (!user) do
+      raise UserNotFoundError(user)
+    end
+
+    existing_permission = AccessPermission.find_by(user: user, path_to_file: path_to_file)
+
+    if (!existing_permission) do
+      AccessPermission.create(user: user, path_to_file: path_to_file, read: read, write: write)
+    else
+      existing_permission.update(read: read, write: write)
+    end
+  end
+
+  def set_role_to_user(user_name, role_name) do
+    user = User.find_by(name: user_name)
+    role = Role.find_by(name: role_name)
+
+    if (!user) do
+      raise UserNotFoundError(user)
+    end
+
+    if (!role) do
+      raise RoleNotFoundError(role)
+    end
+
+    user.update(roles: user.roles_ids + role.id)
+  end
+
+  def is_user_has_action_permission(user_name, action_name) do
+    ActionPermission.join(:user).join(role: :users).where(user_name: user_name, action_name: action_name).count > 0
+  end
+
+  def is_user_can_write_to_file(user_name, path_to_file) do
+    AccessPermission.join(:user).join(role: :users).where(user_name: user_name, path_to_file: path_to_file, write: true).count > 0
+  end
+
+  def is_user_can_read_file(user_name, path_to_file) do
+    AccessPermission.join(:user).join(role: :users).where(user_name: user_name, path_to_file: path_to_file, read: true).count > 0
+  end
+
+end

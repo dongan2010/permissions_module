@@ -1,7 +1,6 @@
 TABLE Users {
   id,
-  first_name,
-  last_name
+  name
 }
 
 TABLE UsersRoles {
